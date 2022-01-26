@@ -32,19 +32,19 @@ it("changes \\lor \\land \\lnot \\oplus into appropriate characters", () => {
 
     userEvent.clear(screen.getByLabelText("Logical Expression:"));
     userEvent.type(screen.getByLabelText("Logical Expression:"), "5 \\oplus 4 ");
-    expect(screen.getByLabelText("Logical Expression:")).toHaveValue("5⊕4 ");
+    expect(screen.getByLabelText("Logical Expression:")).toHaveValue("5 ⊕ 4 ");
 
-    userEvent.type(screen.getByLabelText("Logical Expression:"), " \\lor idonno");
-    expect(screen.getByLabelText("Logical Expression:")).toHaveValue("5⊕4∨ idonno");
+    userEvent.type(screen.getByLabelText("Logical Expression:"), "\\lor idonno");
+    expect(screen.getByLabelText("Logical Expression:")).toHaveValue("5 ⊕ 4 ∨ idonno");
 
     userEvent.type(screen.getByLabelText("Logical Expression:"), " \\land p ");
-    expect(screen.getByLabelText("Logical Expression:")).toHaveValue("5⊕4∨idonno∧p ");
+    expect(screen.getByLabelText("Logical Expression:")).toHaveValue("5 ⊕ 4 ∨ idonno ∧ p ");
 
     userEvent.clear(screen.getByLabelText("Logical Expression:"));
     userEvent.type(screen.getByLabelText("Logical Expression:"), " \\lnot p");
-    expect(screen.getByLabelText("Logical Expression:")).toHaveValue("∼ p");
+    expect(screen.getByLabelText("Logical Expression:")).toHaveValue(" ∼ p");
 
     userEvent.clear(screen.getByLabelText("Logical Expression:"));
-    userEvent.type(screen.getByLabelText("Logical Expression:"), "\\lor \\land \\lnot \\oplus ");
-    expect(screen.getByLabelText("Logical Expression:")).toHaveValue("∨∧∼⊕ ")
+    userEvent.type(screen.getByLabelText("Logical Expression:"), "   \\lor \\land \\lnot \\oplus ");
+    expect(screen.getByLabelText("Logical Expression:")).toHaveValue("   ∨ ∧ ∼ ⊕ ")
 })

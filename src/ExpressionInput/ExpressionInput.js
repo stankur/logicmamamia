@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
+import { stringSplitter, isAllSpaceOrAllLetters } from '../stringSplitter/stringSplitter'
 
 function ExpressionInput() {
     const [ logicalExpression, setLogicalExpression ] = useState("")
 
     const convertToSymbols = (text) => {
-        const splitText = text.split(" ");
+        const splitText = stringSplitter(text, isAllSpaceOrAllLetters);
         const converted = splitText.map((chunk) => {
             if (chunk === "\\land") {
                 return "∧"
@@ -26,21 +27,29 @@ function ExpressionInput() {
 
     const onChange = (event) => {
         const currentText = event.target.value;
+
         if (currentText.endsWith(" ")) {
-            setLogicalExpression(convertToSymbols(currentText) + " ");
-        } else {
+            setLogicalExpression(convertToSymbols(currentText))
+        } else { 
+            if (currentText.length > 0) {
+            const letterChunks = stringSplitter(currentText, isAllSpaceOrAllLetters);
 
-            const splitText = currentText.split(" ");
-            if (splitText.length === 1) {
-                setLogicalExpression(currentText);
+            let letterChunksExceptLastOne = [];
+
+            for (let i = 0; i < letterChunks.length - 1; i++) {
+                letterChunksExceptLastOne.push(letterChunks[i]);
+            } 
+
+            const textExceptLastChunk = letterChunksExceptLastOne;
+            const lastChunk = letterChunks[letterChunks.length -1];
+
+            setLogicalExpression(convertToSymbols(textExceptLastChunk) + lastChunk);
             } else {
-                const exceptLast = splitText.slice(0, splitText.length - 1);
-                const last = splitText[splitText.length - 1]
-                setLogicalExpression( convertToSymbols(exceptLast.join(" ")) + " " + last);
+                setLogicalExpression("");
             }
-
         }
-    }
+        }
+
 
     return (
         <div>
