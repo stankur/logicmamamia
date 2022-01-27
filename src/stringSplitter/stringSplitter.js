@@ -80,4 +80,29 @@ const isFullyInBracketsOrFullyNot = (chunk) => {
 
     return true
 }
-export { stringSplitter, isAllSpaceOrAllLetters, isFullyInBracketsOrFullyNot }
+
+const doesNotHaveLogicalSymbolOrLogicalSymbol = (chunk) => {
+    const logicalSymbols = ["∧", "∨", "⊕", "∼", "→", "↔"];
+
+    const splitChunk = chunk.split("");
+
+    if (logicalSymbols.includes(splitChunk[0])) {
+        for (let i = 0; i < splitChunk.length; i++) {
+            if (i === 0) {
+                continue
+            }
+
+            return false
+        }
+    } else {
+        for (let i = 0; i < splitChunk.length; i++) {
+            if (logicalSymbols.includes(splitChunk[i])) {
+                return false
+            }
+        }
+    }
+
+    return true
+}
+
+export { stringSplitter, isAllSpaceOrAllLetters, isFullyInBracketsOrFullyNot, doesNotHaveLogicalSymbolOrLogicalSymbol }

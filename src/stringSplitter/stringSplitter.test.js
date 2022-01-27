@@ -1,4 +1,4 @@
-import { stringSplitter, isFullyInBracketsOrFullyNot, isAllSpaceOrAllLetters } from './stringSplitter'
+import { stringSplitter, isFullyInBracketsOrFullyNot, isAllSpaceOrAllLetters, doesNotHaveLogicalSymbolOrLogicalSymbol } from './stringSplitter'
 
 const string0 ="   a"
 const string1 = "hai hah heheh cjcjcj      djdjjdjd mama   armpit"
@@ -33,4 +33,18 @@ it('works for isFullyInBracketsOrFullyNot', () => {
     expect(stringSplitter("p V w n ~ (q xor 5 v not ( 5 xor 4)) ", isFullyInBracketsOrFullyNot)).toEqual(["p V w n ~ ", "(q xor 5 v not ( 5 xor 4))", " "]);
     expect(stringSplitter(") 2 v () ~ (q xor 5 v not ( 5 xor 4)) ", isFullyInBracketsOrFullyNot)).toEqual([")", " 2 v ", "()", " ~ ", "(q xor 5 v not ( 5 xor 4))", " " ]);
 
+})
+
+it('works (doesNotHaveLogicalSymbolOrLogicalSymbol)', () => {
+    expect(doesNotHaveLogicalSymbolOrLogicalSymbol("∧∨⊕∼→↔")).toBe(false);
+    expect(doesNotHaveLogicalSymbolOrLogicalSymbol("fhfh ∧ d")).toBe(false);
+    expect(doesNotHaveLogicalSymbolOrLogicalSymbol("fhfh fhfhf")).toBe(true);
+    expect(doesNotHaveLogicalSymbolOrLogicalSymbol("djdjjd↔")).toBe(false);
+    expect(doesNotHaveLogicalSymbolOrLogicalSymbol("djdjjd∧")).toBe(false);
+    expect(doesNotHaveLogicalSymbolOrLogicalSymbol("ffjjf∨⊕xx")).toBe(false);
+
+})
+
+it('works for doesNotHaveLogicalSymbolOrLogicalSymbol', () => {
+    expect(stringSplitter("  t ⊕ yu ∧ yry →↔", doesNotHaveLogicalSymbolOrLogicalSymbol)).toEqual(["  t ", "⊕", " yu ", "∧", " yry ", "→", "↔"]);
 })
