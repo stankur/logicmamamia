@@ -45,4 +45,39 @@ const isAllSpaceOrAllLetters = (chunk) => {
     return true
 }
 
-export { stringSplitter, isAllSpaceOrAllLetters }
+const isFullyInBracketsOrFullyNot = (chunk) => {
+    let leftMinusRightBracketsSoFar = 0;
+    const splitChunk = chunk.split("");
+
+    if (chunk[0] === "(") {
+        for (let i = 0; i < splitChunk.length; i++) {
+            if (chunk[i] === "(") {
+                leftMinusRightBracketsSoFar++;
+            } else if (chunk[i] === ")") {
+                leftMinusRightBracketsSoFar--;
+                continue
+            }
+
+            if (leftMinusRightBracketsSoFar < 1) {
+                return false
+            }
+        }
+    } else if (!(chunk[0] === ")")) {
+        for (let i = 0; i < splitChunk.length; i++) {
+            if (chunk[i] === "(" || chunk[i] === ")") {
+                return false
+            }
+        }
+    } else {
+        for (let i = 0; i < splitChunk.length; i++ ) {
+            if (i === 0) {
+                continue
+            }
+
+            return false
+        }
+    }
+
+    return true
+}
+export { stringSplitter, isAllSpaceOrAllLetters, isFullyInBracketsOrFullyNot }

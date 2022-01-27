@@ -19,6 +19,12 @@ function ExpressionInput() {
             if (chunk === "\\lnot") {
                 return "∼"
             }
+            if (chunk === "\\implies") {
+                return "→"
+            }
+            if (chunk === "\\iff") {
+                return "↔"
+            }
             return chunk
         })
 
