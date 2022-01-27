@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import { stringSplitter, isAllSpaceOrAllLetters } from '../stringSplitter/stringSplitter'
+import { SuggestionControler } from '../SuggestionControler/SuggestionControler'
 
 function ExpressionInput() {
     const [ logicalExpression, setLogicalExpression ] = useState("")
+    const [ currentSelected, setCurrentSelected ] = useState({ start: 0, end: 0, text: "" });
 
     const convertToSymbols = (text) => {
         const splitText = stringSplitter(text, isAllSpaceOrAllLetters);
@@ -54,14 +56,57 @@ function ExpressionInput() {
                 setLogicalExpression("");
             }
         }
+    }
+
+    const assessSelected = (event) => {
+        const input = event.target;
+
+        const start = input.selectionStart;
+        const end = input.selectionEnd;
+
+        let text;
+
+        if (!(start === end)) {  
+            text = input.slice(start, end);
+        } else {
+            text = "";
         }
+
+        setCurrentSelected({ start, end, text });
+
+
+    }
+
+    const replaceWithSuggestion = (suggestedChange) => {
+        const start = currentSelected.start;
+        const end = currentSelected.end;
+
+        let leftString;
+        let rightString;
+
+        if (start === 0) {
+            leftString = ""
+        } else {
+            leftString = currentSelected.slice(0, start)
+        }
+
+        if (end === currentSelected.length) {
+            rightString = ""
+        } else {
+            rightString = currentSelected.slice(end);
+        }
+
+        setLogicalExpression(leftString + suggestedChange + rightString);
+    }
+        
 
 
     return (
         <div>
             <form>
                 <label htmlFor="ExpressionInput">Logical Expression: </label>
-                <input type="text" id="ExpressionInput" onChange={onChange} value={logicalExpression}/>
+                <input type="text" id="ExpressionInput" onChange={onChange} onClick={assessSelected} onMouseUp={assessSelected} value={logicalExpression}/>
+                <SuggestionControler textToAnalyze={currentSelected.text} onSubmit={replaceWithSuggestion}/>
             </form>
         </div>
     );
