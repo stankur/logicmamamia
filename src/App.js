@@ -12,6 +12,8 @@ function App() {
         <li>\oplus</li>
         <li>\implies</li>
         <li>\iff</li>
+        <li>T for true</li>
+        <li>F for false</li>
       </ul>
       <ExpressionInput />
     </div>

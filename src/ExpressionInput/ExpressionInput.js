@@ -67,7 +67,7 @@ function ExpressionInput() {
         let text;
 
         if (!(start === end)) {  
-            text = input.slice(start, end);
+            text = input.value.slice(start, end);
         } else {
             text = "";
         }
@@ -87,13 +87,13 @@ function ExpressionInput() {
         if (start === 0) {
             leftString = ""
         } else {
-            leftString = currentSelected.slice(0, start)
+            leftString = currentSelected.text.slice(0, start)
         }
 
         if (end === currentSelected.length) {
             rightString = ""
         } else {
-            rightString = currentSelected.slice(end);
+            rightString = currentSelected.text.slice(end);
         }
 
         setLogicalExpression(leftString + suggestedChange + rightString);
@@ -105,7 +105,7 @@ function ExpressionInput() {
         <div>
             <form>
                 <label htmlFor="ExpressionInput">Logical Expression: </label>
-                <input type="text" id="ExpressionInput" onChange={onChange} onClick={assessSelected} onMouseUp={assessSelected} value={logicalExpression}/>
+                <input type="text" id="ExpressionInput" onChange={onChange} onClick={assessSelected} onKeyUp={assessSelected} value={logicalExpression}/>
                 <SuggestionControler textToAnalyze={currentSelected.text} onSubmit={replaceWithSuggestion}/>
             </form>
         </div>
