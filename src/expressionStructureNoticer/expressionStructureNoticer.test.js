@@ -1,4 +1,5 @@
-import { isBracketingValid, separateBracketedFromNot, separateIntoPropositionalGroupsOrSymbols, textComponentsBracketingAllValid } from './expressionStructureNoticer' 
+import { isBracketingValid, separateBracketedFromNot, separateIntoPropositionalGroupsOrSymbols, 
+    textComponentsBracketingAllValid, combineNotsWithExpressionNextToThem, arePropositionsEqual, findPossibleLogicalLaws } from './expressionStructureNoticer' 
 
 it("works (isBracketingValid)", () => {
     expect(isBracketingValid("((((())(()))())))")).toBe(false);
@@ -13,8 +14,8 @@ it("works (separateBracketedFromNot)", () => {
 })
 
 it("works (separateIntoPropositionalGroupsOrSymbols)", () => {
-    expect(separateIntoPropositionalGroupsOrSymbols(["(p + q * (20∧ ∼ ⊕))", "  ∨  5 ", "((())())", "p∧ ∼ ⊕"])).toEqual(
-        ["(p + q * (20∧ ∼ ⊕))", "∨", "5", "((())())", "p", "∧", "∼", "⊕"]
+    expect(separateIntoPropositionalGroupsOrSymbols(["(p + q * (20∧ ∼ ⊕))", "  ∨  5 ", "((())())", "p∧ ∼ ⊕↔"])).toEqual(
+        ["(p + q * (20∧ ∼ ⊕))", "∨", "5", "((())())", "p", "∧", "∼", "⊕", "↔"]
         );
 
      expect(separateIntoPropositionalGroupsOrSymbols(["(p + q * (20∧ ∼ ⊕))", "   ", "((())())", "p∧ ∼ ⊕"])).toEqual(
@@ -22,3 +23,29 @@ it("works (separateIntoPropositionalGroupsOrSymbols)", () => {
 
 })
 
+it('works (combineNotsWithExpressionNextToThem)', () => {
+    expect(combineNotsWithExpressionNextToThem(["(p + q * (20∧ ∼ ⊕))", "((())())","p", "∧", "∼", "⊕", "↔"])).toEqual(
+        ["(p + q * (20∧ ∼ ⊕))", "((())())","p", "∧", "∼⊕", "↔"]
+    );
+
+    expect(combineNotsWithExpressionNextToThem(["((())())","p", "∧", "∼", "(p + q * (20∧ ∼ ⊕))", "⊕"])).toEqual(
+        ["((())())","p", "∧", "∼(p + q * (20∧ ∼ ⊕))", "⊕"]
+    );
+
+    expect(combineNotsWithExpressionNextToThem(["((())())","p", "∧", "∼", "∼", "(p + q * (20∧ ∼ ⊕))", "⊕"])).toEqual(
+        ["((())())","p", "∧", "∼∼(p + q * (20∧ ∼ ⊕))", "⊕"]
+    );
+
+    expect(combineNotsWithExpressionNextToThem(["((())())", "∼", "p", "∧", "∼", "∼", "∼","(p + q * (20∧ ∼ ⊕))", "⊕"])).toEqual(
+        ["((())())","∼p", "∧", "∼∼∼(p + q * (20∧ ∼ ⊕))", "⊕"]
+    );
+
+})
+
+it('works (arePropositionsEqual)', () => {
+    expect(arePropositionsEqual("(   ( p ∧ q) ∧ ∼ q)", "( (p    ∧ q) ∧∼ q)")).toBe(true)
+})
+
+it('works (find possible mutations)', () => {
+    expect(findPossibleLogicalLaws(["∼p", "∨", "(p    ∨ r)"])).toEqual([])
+})
