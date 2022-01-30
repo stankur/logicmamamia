@@ -62,6 +62,59 @@ it('works (getNegatedExpression)', () => {
 })
 
 it('works (find possible mutations)', () => {
-    expect(findPossibleLogicalLaws(["∼q",  "∨", "(p  ∧ q)"])).toEqual([])
+    expect(findPossibleLogicalLaws(["(p→ q)",  "∧", "(q → p)"])).toEqual([
+        {
+            "name": "Commutative (COM)",
+            "result": "(q → p) ∧ (p→ q)",
+        },
+        {
+            "name": "Definition of Biconditional (BIC)",
+            "result": "p ↔ q",
+        }]);
+    expect(findPossibleLogicalLaws(["∼∼p"])).toEqual([
+        {
+            "name": "Double Negation (DNEG)",
+            "result": "p"
+        }]);
+    expect(findPossibleLogicalLaws(["∼(∼p)"])).toEqual([
+        {
+            "name": "Double Negation (DNEG)",
+            "result": "p"
+        }]);
+    expect(findPossibleLogicalLaws(["(∼∼p)"])).toEqual([
+        {
+            "name": "Double Negation (DNEG)",
+            "result": "p"
+        }]);
+    expect(findPossibleLogicalLaws(["∼(p ∧ q)"])).toEqual([
+        {
+            "name": "DeMorgan’s (DM)",
+            "result": "(∼p) ∨ (∼q)",
+        }]);
+    expect(findPossibleLogicalLaws(["(∼(p ∧ q))"])).toEqual([
+        {
+            "name": "DeMorgan’s (DM)",
+            "result": "(∼p) ∨ (∼q)",
+        }]);
+    expect(findPossibleLogicalLaws(["(∼(p ∨ q))"])).toEqual([
+        {
+            "name": "DeMorgan’s (DM)",
+            "result": "(∼p) ∧ (∼q)",
+        }]);
+    expect(findPossibleLogicalLaws(["∼(p ∨ q)"])).toEqual([
+        {
+            "name": "DeMorgan’s (DM)",
+            "result": "(∼p) ∧ (∼q)",
+        }]);
+    expect(findPossibleLogicalLaws(["p", "↔", "q"])).toEqual([
+        {
+            "name": "Definition of Biconditional (BIC)",
+            "result": "(p → q) ∧ (q → p)",
+        },
+        {
+            "name": "Definition of Biconditional (BIC)",
+            "result": "∼(p ⊕ q)",
+        }]);
 
+        
 })
