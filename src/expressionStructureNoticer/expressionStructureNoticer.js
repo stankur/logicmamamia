@@ -468,7 +468,15 @@ const findPossibleLogicalLaws = (splitText) => {
     return possibleMutations
 }
 
+const checkValidityAndFindEquivalences = (text) => {
+    if (textComponentsBracketingAllValid(text)) {
+        return findPossibleLogicalLaws(separateIntoPropositionalGroupsOrSymbols(separateBracketedFromNot(text)))
+    }
+
+    return false
+}
 
 
 
-export { isBracketingValid, separateBracketedFromNot, separateIntoPropositionalGroupsOrSymbols, textComponentsBracketingAllValid,combineNotsWithExpressionNextToThem, arePropositionsEqual, findPossibleLogicalLaws, getNegatedExpression }
+
+export { isBracketingValid, separateBracketedFromNot, separateIntoPropositionalGroupsOrSymbols, textComponentsBracketingAllValid,combineNotsWithExpressionNextToThem, arePropositionsEqual, findPossibleLogicalLaws, getNegatedExpression, checkValidityAndFindEquivalences }

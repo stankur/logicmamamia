@@ -1,5 +1,5 @@
 import { isBracketingValid, separateBracketedFromNot, separateIntoPropositionalGroupsOrSymbols, 
-    getNegatedExpression, combineNotsWithExpressionNextToThem, arePropositionsEqual, findPossibleLogicalLaws } from './expressionStructureNoticer' 
+    getNegatedExpression, combineNotsWithExpressionNextToThem, arePropositionsEqual, findPossibleLogicalLaws, checkValidityAndFindEquivalences } from './expressionStructureNoticer' 
 
 it("works (isBracketingValid)", () => {
     expect(isBracketingValid("((((())(()))())))")).toBe(false);
@@ -116,5 +116,45 @@ it('works (find possible mutations)', () => {
             "result": "∼(p ⊕ q)",
         }]);
 
-        
+
 })
+
+it('works (checkValidityAndFindEquivalences)', () => {
+    expect(checkValidityAndFindEquivalences("p↔ q")).toEqual([
+        {
+            "name": "Definition of Biconditional (BIC)",
+            "result": "(p → q) ∧ (q → p)",
+        },
+        {
+            "name": "Definition of Biconditional (BIC)",
+            "result": "∼(p ⊕ q)",
+        }
+    ])
+    expect(checkValidityAndFindEquivalences("p   ↔ q")).toEqual([
+        {
+            "name": "Definition of Biconditional (BIC)",
+            "result": "(p → q) ∧ (q → p)",
+        },
+        {
+            "name": "Definition of Biconditional (BIC)",
+            "result": "∼(p ⊕ q)",
+        }
+    ])
+    expect(checkValidityAndFindEquivalences("p↔q")).toEqual([
+        {
+            "name": "Definition of Biconditional (BIC)",
+            "result": "(p → q) ∧ (q → p)",
+        },
+        {
+            "name": "Definition of Biconditional (BIC)",
+            "result": "∼(p ⊕ q)",
+        }
+    ])
+    expect(checkValidityAndFindEquivalences("∼(p ∧ q)")).toEqual([
+        {
+            "name": "DeMorgan’s (DM)",
+            "result": "(∼p) ∨ (∼q)",
+        }]);
+
+    expect(checkValidityAndFindEquivalences("(()")).toBe(false)
+});
