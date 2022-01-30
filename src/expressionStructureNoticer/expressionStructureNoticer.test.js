@@ -1,5 +1,5 @@
 import { isBracketingValid, separateBracketedFromNot, separateIntoPropositionalGroupsOrSymbols, 
-    textComponentsBracketingAllValid, combineNotsWithExpressionNextToThem, arePropositionsEqual, findPossibleLogicalLaws } from './expressionStructureNoticer' 
+    getNegatedExpression, combineNotsWithExpressionNextToThem, arePropositionsEqual, findPossibleLogicalLaws } from './expressionStructureNoticer' 
 
 it("works (isBracketingValid)", () => {
     expect(isBracketingValid("((((())(()))())))")).toBe(false);
@@ -40,12 +40,28 @@ it('works (combineNotsWithExpressionNextToThem)', () => {
         ["((())())","∼p", "∧", "∼∼∼(p + q * (20∧ ∼ ⊕))", "⊕"]
     );
 
+    expect(combineNotsWithExpressionNextToThem(["((())())", "∼p", "∧", "∼", "∼", "∼","(p + q * (20∧ ∼ ⊕))", "⊕"])).toEqual(
+        ["((())())","∼p", "∧", "∼∼∼(p + q * (20∧ ∼ ⊕))", "⊕"]
+    );
+
+
 })
 
 it('works (arePropositionsEqual)', () => {
     expect(arePropositionsEqual("(   ( p ∧ q) ∧ ∼ q)", "( (p    ∧ q) ∧∼ q)")).toBe(true)
 })
 
+it('works (getNegatedExpression)', () => {
+    expect(getNegatedExpression("∼p")).toBe("p");
+    expect(getNegatedExpression("∼∼p")).toBe("∼p");
+    expect(getNegatedExpression("∼(p ∨ q)")).toBe("(p ∨ q)");
+    expect(getNegatedExpression("(∼∼p)")).toBe("∼p");
+    expect(getNegatedExpression("(∼p)")).toBe("p");
+    expect(getNegatedExpression("(∼(p ∨ q))")).toBe("(p ∨ q)");
+    
+})
+
 it('works (find possible mutations)', () => {
-    expect(findPossibleLogicalLaws(["∼p", "∨", "(p    ∨ r)"])).toEqual([])
+    expect(findPossibleLogicalLaws(["∼q",  "∨", "(p  ∧ q)"])).toEqual([])
+
 })

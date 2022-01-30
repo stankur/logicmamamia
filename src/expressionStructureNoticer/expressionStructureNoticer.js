@@ -138,11 +138,11 @@ const convertToLogicalExpressionRoles = (splitText) => {
 }
 
 const checkIsBracketed = (text) => {
-    if (text.length < 2) {
+    if (text.length <= 2) {
         return false
     }
 
-    if (text[0] === "(" && text[2] === ")") {
+    if (text[0] === "(" && text[text.length - 1] === ")") {
         return true
     }
 
@@ -161,7 +161,7 @@ const getInBracket = (text) => {
 const getInBracketInfo = (textInBracket) => {
     const content = getInBracket(textInBracket);
 
-    const notIsOperatorSeparated = separateIntoPropositionalGroupsOrSymbols(content);
+    const notIsOperatorSeparated = separateIntoPropositionalGroupsOrSymbols(separateBracketedFromNot(content));
     const notIsPOPSeparated = combineNotsWithExpressionNextToThem(notIsOperatorSeparated);
 
     const notIsOperatorRoles = convertToLogicalExpressionRoles(notIsOperatorSeparated);
@@ -171,7 +171,7 @@ const getInBracketInfo = (textInBracket) => {
 }
 
 const getNegatedExpressionNoBrackets = (expression) => {
-    const notIsOperatorSeparated = separateIntoPropositionalGroupsOrSymbols(expression);
+    const notIsOperatorSeparated = separateIntoPropositionalGroupsOrSymbols(separateBracketedFromNot(expression));
     const notIsPOPSeparated = combineNotsWithExpressionNextToThem(notIsOperatorSeparated);
 
     const notIsOperatorRoles = convertToLogicalExpressionRoles(notIsOperatorSeparated);
@@ -182,8 +182,10 @@ const getNegatedExpressionNoBrackets = (expression) => {
     }
 
     if (isEqual(notIsPOPRoles, ["e"])) {
-        if (notIsPOPSeparated.length > 1 && notIsPOPSeparated[0] === "∼") {
-            const [, ...negatedProposition] = notIsPOPSeparated;
+        const proposition = notIsPOPSeparated[0];
+
+        if (proposition.length > 1 && proposition[0] === "∼") {
+            const [, ...negatedProposition] = proposition;
             return negatedProposition.join("");
         }
     }
@@ -213,7 +215,6 @@ const findPossibleLogicalLaws = (splitText) => {
     console.log(notIsPOPRoles)
 
     if (isEqual(notIsPOPRoles, ["e", "∨", "e"])) {
-        console.log("I went in here")
         if (notIsPartOfProposition[2] === "F") {
             possibleMutations.push({ name: "Identity (I)", result: notIsPartOfProposition[0] });
         }
@@ -273,6 +274,8 @@ const findPossibleLogicalLaws = (splitText) => {
             }
         }
 
+        console.log(notIsPartOfProposition[2])
+        console.log(getNegatedExpression(notIsPartOfProposition[2]))
         if (getNegatedExpression(notIsPartOfProposition[2])) {
             const negated = getNegatedExpression(notIsPartOfProposition[2]);
 
@@ -312,11 +315,110 @@ const findPossibleLogicalLaws = (splitText) => {
 
             possibleMutations.push({ name: "Definition of Implication (IMP)", result: `${negated1} → ${notIsPartOfProposition[2]}` })
         }
+    } else if (isEqual(notIsPOPRoles, ["e", "∧", "e"])) {
+        if (notIsPartOfProposition[2] === "T") {
+            possibleMutations.push({ name: "Identity (I)", result: `${notIsPartOfProposition[0]}` });
+        }
 
-        
+        if (notIsPartOfProposition[2] === "F") {
+            possibleMutations.push({ name: "Universal Bound (UB)", result: "F" });
+        }
 
+        if (arePropositionsEqual(notIsPartOfProposition[0], notIsPartOfProposition[2])) {
+            possibleMutations.push({ name: "Idempotent (ID)", result: `${notIsPartOfProposition[0]}` });
+        }
 
+        possibleMutations.push({ name: "Commutative (COM)", result: `${notIsPartOfProposition[2]} ∧ ${notIsPartOfProposition[0]}` });
 
+        if (checkIsBracketed(notIsPartOfProposition[2]) && isEqual(getInBracketInfo(notIsPartOfProposition[2]).notIsPOPRoles, ["e", "∧", "e"])) {
+            const leftProposition = getInBracketInfo(notIsPartOfProposition[2]).notIsPOPSeparated[0];
+            const rightProposition = getInBracketInfo(notIsPartOfProposition[2]).notIsPOPSeparated[2];
+
+            possibleMutations.push({ name: "Associative (ASS)", result: `(${notIsPartOfProposition[0]} ∧ ${leftProposition}) ∧ ${rightProposition}` });
+        }
+
+        if (checkIsBracketed(notIsPartOfProposition[0]) && isEqual(getInBracketInfo(notIsPartOfProposition[0]).notIsPOPRoles, ["e", "∧", "e"])) {
+            const leftProposition = getInBracketInfo(notIsPartOfProposition[0]).notIsPOPSeparated[0];
+            const rightProposition = getInBracketInfo(notIsPartOfProposition[0]).notIsPOPSeparated[2];
+
+            possibleMutations.push({ name: "Associative (ASS)", result: `${leftProposition} ∧ (${rightProposition} ∧ ${notIsPartOfProposition[2]})` });
+        }
+
+        if (checkIsBracketed(notIsPartOfProposition[2]) && isEqual(getInBracketInfo(notIsPartOfProposition[2]).notIsPOPRoles, ["e", "∨", "e"])) {
+            const leftProposition = getInBracketInfo(notIsPartOfProposition[2]).notIsPOPSeparated[0];
+            const rightProposition = getInBracketInfo(notIsPartOfProposition[2]).notIsPOPSeparated[2];
+
+            possibleMutations.push({ name: "Distributive (DIST)", result: `(${notIsPartOfProposition[0]} ∧ ${leftProposition}) ∨ (${notIsPartOfProposition[0]} ∧ ${rightProposition})` });
+        }
+
+        if (checkIsBracketed(notIsPartOfProposition[0]) && checkIsBracketed(notIsPartOfProposition[2])
+        && isEqual(getInBracketInfo(notIsPartOfProposition[0]).notIsPOPRoles, ["e", "∨", "e"])
+        && isEqual(getInBracketInfo(notIsPartOfProposition[2]).notIsPOPRoles, ["e", "∨", "e"])) {
+            const leftLeftProposition = getInBracketInfo(notIsPartOfProposition[0]).notIsPOPSeparated[0];
+            const leftRightProposition = getInBracketInfo(notIsPartOfProposition[0]).notIsPOPSeparated[2];
+
+            const rightLeftProposition = getInBracketInfo(notIsPartOfProposition[2]).notIsPOPSeparated[0];
+            const rightRightProposition = getInBracketInfo(notIsPartOfProposition[2]).notIsPOPSeparated[2];
+
+            if (arePropositionsEqual(leftLeftProposition, rightLeftProposition)) {
+                possibleMutations.push({ name: "Distributive (DIST)", result: `${leftLeftProposition} ∨ (${leftRightProposition} ∧ ${rightRightProposition})` });
+            }
+        }
+
+        if (checkIsBracketed(notIsPartOfProposition[2]) && isEqual(getInBracketInfo(notIsPartOfProposition[2]).notIsPOPRoles, ["e", "∨", "e"])) {
+            const leftProposition = getInBracketInfo(notIsPartOfProposition[2]).notIsPOPSeparated[0];
+
+            if (arePropositionsEqual(notIsPartOfProposition[0], leftProposition)) {
+                possibleMutations.push({ name: "Absorption (ABS)", result: `${notIsPartOfProposition[0]}` });
+            }
+        }
+
+        if (getNegatedExpression(notIsPartOfProposition[2])) {
+            const negated = getNegatedExpression(notIsPartOfProposition[2]);
+
+            if (arePropositionsEqual(negated, notIsPartOfProposition[0])) {
+                possibleMutations.push({ name: "Negation (NEG)", result: "F" });
+            }
+        }
+
+        if (getNegatedExpression(notIsPartOfProposition[0]) && getNegatedExpression(notIsPartOfProposition[2])) {
+            const negated1 = getNegatedExpression(notIsPartOfProposition[0]);
+            const negated2 = getNegatedExpression(notIsPartOfProposition[1]);
+
+            possibleMutations.push({ name: "DeMorgan’s (DM)", result: `∼(${negated1} ∨ ${negated2})` })
+        }
+
+        if(checkIsBracketed(notIsPartOfProposition[0]) 
+        && getNegatedExpression(notIsPartOfProposition[2])
+        && isEqual(getInBracketInfo(notIsPartOfProposition[0]).notIsPOPRoles, ["e", "∨", "e"])
+        && isEqual(getInBracketInfo(getNegatedExpression(notIsPartOfProposition[2])).notIsPOPRoles, ["e", "∧", "e"])) {
+            const leftLeftProposition = getInBracketInfo(notIsPartOfProposition[0]).notIsPOPSeparated[0];
+            const leftRightProposition = getInBracketInfo(notIsPartOfProposition[0]).notIsPOPSeparated[2];
+
+            const rightLeftProposition = getInBracketInfo(notIsPartOfProposition[2]).notIsPOPSeparated[0];
+            const rightRightProposition = getInBracketInfo(notIsPartOfProposition[2]).notIsPOPSeparated[2];
+
+            if (arePropositionsEqual(leftLeftProposition, rightLeftProposition) 
+            && arePropositionsEqual(leftRightProposition, rightRightProposition)) {
+                possibleMutations.push({ name: "Definition of Exclusive OR (XOR)", result: `${leftLeftProposition} ⊕ ${leftRightProposition}` })
+            }
+        }
+
+        if (checkIsBracketed(notIsPartOfProposition[0]) 
+        && checkIsBracketed(notIsPartOfProposition[2])
+        && isEqual(getInBracketInfo(notIsPartOfProposition[0]).notIsPOPRoles, ["e", "→", "e"])
+        && isEqual(getInBracketInfo(notIsPartOfProposition[2]).notIsPOPRoles, ["e", "→", "e"])) {
+            const leftLeftProposition = getInBracketInfo(notIsPartOfProposition[0]).notIsPOPSeparated[0];
+            const leftRightProposition = getInBracketInfo(notIsPartOfProposition[0]).notIsPOPSeparated[2];
+
+            const rightLeftProposition = getInBracketInfo(notIsPartOfProposition[2]).notIsPOPSeparated[0];
+            const rightRightProposition = getInBracketInfo(notIsPartOfProposition[2]).notIsPOPSeparated[2];
+
+            if (arePropositionsEqual(leftLeftProposition, rightRightProposition)
+            && arePropositionsEqual(leftRightProposition, rightLeftProposition)) {
+                possibleMutations.push({ name: "Definition of Biconditional (BIC)", result: `${leftLeftProposition} ↔ ${leftRightProposition}` })
+            }
+        }
     }
 
     return possibleMutations
@@ -325,4 +427,4 @@ const findPossibleLogicalLaws = (splitText) => {
 
 
 
-export { isBracketingValid, separateBracketedFromNot, separateIntoPropositionalGroupsOrSymbols, textComponentsBracketingAllValid,combineNotsWithExpressionNextToThem, arePropositionsEqual, findPossibleLogicalLaws }
+export { isBracketingValid, separateBracketedFromNot, separateIntoPropositionalGroupsOrSymbols, textComponentsBracketingAllValid,combineNotsWithExpressionNextToThem, arePropositionsEqual, findPossibleLogicalLaws, getNegatedExpression }
